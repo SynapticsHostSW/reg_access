@@ -1,0 +1,21 @@
+//
+//  Commandline Tool - reg_access 
+///////////////////////////////////////////////////////////
+
+v1.3 Apr 19, 2013 scott.lin@tw.synaptics.com
+	- Add auto detection of input number
+	- Allow multiple bytes of data to be written
+	- Usage: reg_access [-a {address in hex}] [-l {length to read}] [-d {data to write}] [-r] [-w]
+
+v1.2 Jan 31, 2013 scott.lin@tw.synaptics.com
+	- Use file descriptor instead of file pointer
+	- Remove use of address and length sysfs entries
+	- Use lseek/read/write functions to pass address and length to driver
+	- Usage: reg_access [-a {address in hex}] [-l {length to read}] [-d {data to write}] [-r] [-w] [-p {sysfs_entry}]
+
+v1.1 Jan 31, 2013 scott.lin@tw.synaptics.com
+	- Add option to specify path to sysfs entries
+	- Usage: reg_access [-a {address in hex}] [-l {length to read}] [-d {data to write}] [-r] [-w] [-p {sysfs_entry}]
+
+v1.0 Nov 23, 2012 scott.lin@tw.synaptics.com
+	- Usage: reg_access [-a {address in hex}] [-l {length to read}] [-d {data to write}] [-r] [-w]
