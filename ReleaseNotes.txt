@@ -2,6 +2,10 @@
 //  Commandline Tool - reg_access 
 ///////////////////////////////////////////////////////////
 
+v1.4 Aug 30, 2013 scott.lin@tw.synaptics.com
+	- Allow reading more than 256 bytes of data
+	- Usage: reg_access [-a {address in hex}] [-l {length to read}] [-d {data to write}] [-r] [-w]
+
 v1.3 Apr 19, 2013 scott.lin@tw.synaptics.com
 	- Add auto detection of input number
 	- Allow multiple bytes of data to be written

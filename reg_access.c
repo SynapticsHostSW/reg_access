@@ -24,7 +24,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#define VERSION "1.3"
+#define VERSION "1.4"
 
 #define INPUT_PATH "/sys/class/input/input"
 #define NUMBER_OF_INPUTS_TO_SCAN 20
