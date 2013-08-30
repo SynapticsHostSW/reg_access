@@ -44,6 +44,8 @@ char rmidev_open[MAX_STRING_LEN];
 char rmidev_data[MAX_STRING_LEN];
 char rmidev_release[MAX_STRING_LEN];
 
+unsigned char *r_data;
+
 unsigned char read_write = 0; /* 0 = read, 1 = write */
 unsigned short address = 0;
 unsigned int length = 1;
@@ -52,6 +54,15 @@ static void usage(char *name)
 {
 	printf("Version %s\n", VERSION);
 	printf("Usage: %s [-a {address in hex}] [-l {length to read}] [-d {data to write}] [-r] [-w]\n", name);
+
+	return;
+}
+static void error_exit(error_code)
+{
+	if (r_data)
+		free(r_data);
+
+	exit(error_code);
 
 	return;
 }
@@ -68,7 +79,7 @@ static void writevaluetofd(int fd, unsigned int value)
 	if (numBytesWritten != strlen(buf)) {
 		printf("error: failed to write all bytes to file\n");
 		close(fd);
-		exit(EIO);
+		error_exit(EIO);
 	}
 
 	return;
@@ -115,7 +126,6 @@ int main(int argc, char* argv[])
 	unsigned long temp;
 	unsigned char bytes_to_write;
 	unsigned char index = 0;
-	unsigned char r_data[MAX_BUFFER_LEN];
 	unsigned char w_data[MAX_BUFFER_LEN] = {0};
 	char data_input[MAX_STRING_LEN] = {0};
 	char next_value[3] = {0};
@@ -124,7 +134,7 @@ int main(int argc, char* argv[])
 
 	if (argc == 1) {
 		usage(argv[0]);
-		exit(EINVAL);
+		error_exit(EINVAL);
 	}
 
 	for (temp = 0; temp < NUMBER_OF_INPUTS_TO_SCAN; temp++) {
@@ -142,7 +152,7 @@ int main(int argc, char* argv[])
 
 	if (!found) {
 		printf("error: input driver not found\n");
-		exit(ENODEV);
+		error_exit(ENODEV);
 	}
 
 	while (this_arg < argc) {
@@ -164,7 +174,7 @@ int main(int argc, char* argv[])
 		} else {
 			usage(argv[0]);
 			printf("error: invalid parameter %s\n", argv[this_arg]);
-			exit(EINVAL);
+			error_exit(EINVAL);
 		}
 		this_arg++;
 	}
@@ -177,12 +187,12 @@ int main(int argc, char* argv[])
 			RELEASE_FILENAME);
 
 	if (CheckFiles())
-		exit(ENODEV);
+		error_exit(ENODEV);
 /*
 	fd = open(rmidev_open, O_WRONLY);
 	if (fd < 0) {
 		printf("error: failed to open %s\n", rmidev_open);
-		exit(EIO);
+		error_exit(EIO);
 	}
 	writevaluetofd(fd, 1);
 	close(fd);
@@ -190,13 +200,13 @@ int main(int argc, char* argv[])
 	if (read_write == 1) {
 		if ((strlen(data_input) == 0) || (strlen(data_input) % 2)) {
 			printf("error: invalid data format\n");
-			exit(EIO);
+			error_exit(EIO);
 		}
 
 		fd = open(rmidev_data, O_WRONLY);
 		if (fd < 0) {
 			printf("error: failed to open %s\n", rmidev_data);
-			exit(EIO);
+			error_exit(EIO);
 		}
 
 		lseek(fd, address, SEEK_SET);
@@ -223,16 +233,22 @@ int main(int argc, char* argv[])
 		if (retval != bytes_to_write) {
 			printf("error: failed to write data\n");
 			close(fd);
-			exit(EIO);
+			error_exit(EIO);
 		}
 
 		close(fd);
 	} else {
+		r_data = malloc(length);
+		if (!r_data) {
+			printf("error: failed to allocate r_data buffer\n");
+			error_exit(ENOMEM);
+		}
+
 		fd = open(rmidev_data, O_RDONLY);
 
 		if (fd < 0) {
 			printf("error: failed to open %s\n", rmidev_data);
-			exit(EIO);
+			error_exit(EIO);
 		}
 
 		lseek(fd, address, SEEK_SET);
@@ -241,7 +257,7 @@ int main(int argc, char* argv[])
 		if (retval != length) {
 			printf("error: failed to read data\n");
 			close(fd);
-			exit(EIO);
+			error_exit(EIO);
 		}
 
 		close(fd);
@@ -253,10 +269,13 @@ int main(int argc, char* argv[])
 	fd = open(rmidev_release, O_WRONLY);
 	if (fd < 0) {
 		printf("error: failed to open %s\n", rmidev_release);
-		exit(EIO);
+		error_exit(EIO);
 	}
 	writevaluetofd(fd, 1);
 	close(fd);
 */
+	if (r_data)
+		free(r_data);
+
 	return 0;
 }
